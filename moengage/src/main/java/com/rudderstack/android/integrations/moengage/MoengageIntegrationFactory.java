@@ -9,6 +9,7 @@ import com.moengage.core.Logger;
 import com.moengage.core.MoEngage;
 import com.moengage.core.MoEngage.DATA_REGION;
 import com.moengage.core.Properties;
+import com.moengage.core.model.AppStatus;
 import com.moengage.core.model.UserGender;
 import com.rudderstack.android.sdk.core.MessageType;
 import com.rudderstack.android.sdk.core.RudderClient;
@@ -128,11 +129,17 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
     private void processRudderEvent(RudderMessage element) throws Exception {
         if (element.getType() != null) {
             switch (element.getType()) {
+
                 case MessageType.TRACK:
                     String event = element.getEventName();
                     if (event == null) {
                         return;
+                    } else if (event.equals("Application Installed")) {
+                        helper.setAppStatus(AppStatus.INSTALL);
+                    } else if (event.equals("Application Updated")) {
+                        helper.setAppStatus(AppStatus.UPDATE);
                     }
+
                     Map<String, Object> eventProperties = element.getProperties();
                     if (eventProperties == null || eventProperties.size() == 0) {
                         RudderLogger.logDebug("MoEngage event has no properties");
@@ -142,6 +149,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                     JSONObject propertiesJson = new JSONObject(eventProperties);
                     helper.trackEvent(element.getEventName(), jsonToProperties(propertiesJson));
                     break;
+
                 case MessageType.IDENTIFY:
 
                     String userId = element.getUserId();
