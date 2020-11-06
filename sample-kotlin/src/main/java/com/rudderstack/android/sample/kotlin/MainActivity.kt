@@ -17,21 +17,15 @@ class MainActivity : AppCompatActivity() {
         val property = RudderProperty()
         property.put("key_1", "val_1")
         property.put("key_2", "val_2")
-        val childProperty = RudderProperty()
-        childProperty.put("key_c_1", "val_c_1")
-        childProperty.put("key_c_2", "val_c_2")
-        property.put("child_key", childProperty)
-        MainApplication.rudderClient.track("challenge: applied points", property)
-        MainApplication.rudderClient.track("article: viewed")
+        MainApplication.rudderClient.track("Event with Property", property)
+        MainApplication.rudderClient.track("Event without Property")
         MainApplication.rudderClient.identify(
-            "test_user_id",
+            "sample_user_id",
             RudderTraits()
-                .putEmail("example@gmail.com")
+                .putEmail("sample@gmail.com")
                 .putFirstName("Foo")
                 .putLastName("Bar")
-                .putName("example"), null
+                .putName("Foo Bar"), null
         )
-        MainApplication.rudderClient.track("account: created")
-        MainApplication.rudderClient.track("account: authenticated")
     }
 }

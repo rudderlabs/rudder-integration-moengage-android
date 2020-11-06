@@ -14,14 +14,13 @@ apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    buildToolsVersion '29.0.3'
 
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
         versionCode 1
-        versionName "0.1.0-beta.1"
-        multiDexEnabled true
+        versionName '0.1.0-beta.1'
     }
 
     buildTypes {
@@ -34,19 +33,15 @@ android {
 
 repositories {
     mavenCentral()
-    maven { url "https://dl.bintray.com/rudderstack/rudderstack" }
+    maven { url 'https://dl.bintray.com/rudderstack/rudderstack' }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.annotation:annotation:1.1.0'
+    compileOnly 'androidx.annotation:annotation:1.1.0'
     // rudder core sdk
-    compileOnly 'com.rudderstack.android.sdk:core:1.0.1'
-    implementation 'androidx.core:core:1.4.0-alpha01'
-    implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.lifecycle:lifecycle-process:2.2.0")
-    implementation("com.moengage:moe-android-sdk:10.4.03")
-    implementation 'com.google.android.gms:play-services:12.0.1'
+    compileOnly 'com.rudderstack.android.sdk:core:1.+'
+    api 'com.moengage:moe-android-sdk:10.4.03'
 }
 
 apply from: './maven.gradle'

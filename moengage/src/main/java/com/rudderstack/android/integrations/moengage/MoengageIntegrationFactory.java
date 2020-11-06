@@ -70,7 +70,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
         Map<String, Object> destinationConfig = (Map<String, Object>) config;
         if (destinationConfig == null) {
             RudderLogger.logError("Invalid api key. Aborting MoEngage initialization.");
-        } else if (client.getApplication() == null) {
+        } else if (RudderClient.getApplication() == null) {
             RudderLogger.logError("RudderClient is not initialized correctly. Application is null. Aborting MoEngage initialization.");
         } else {
             // get apiId and return if null or blank
@@ -89,11 +89,11 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
             }
 
             if (region == null || region.isEmpty()) {
-                RudderLogger.logError("Region is empty. Aborting MoEngage initialization.");
-                return;
-            } else {
-                region = region.trim();
+                region = "US";
             }
+
+            region = region.trim();
+
 
             switch (region) {
                 case "US":
@@ -114,19 +114,21 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                     Logger.VERBOSE : Logger.ERROR;
 
             // all good. initialize moengage sdk
-            MoEngage moEngage = new MoEngage.Builder(client.getApplication(), apiId)
+            MoEngage moEngage = new MoEngage.Builder(RudderClient.getApplication(), apiId)
                     .setLogLevel(logLevel)
                     .redirectDataToRegion(dataRegion)
+                    .setNotificationLargeIcon(R.drawable.ic_launcher_background)
+                    .setNotificationSmallIcon(R.drawable.ic_launcher_background)
                     .build();
             MoEngage.initialise(moEngage);
-            helper = MoEHelper.getInstance(client.getApplication().getApplicationContext());
+            helper = MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
 
 
         }
 
     }
 
-    private void processRudderEvent(RudderMessage element) throws Exception {
+    private void processRudderEvent(RudderMessage element) {
         if (element.getType() != null) {
             switch (element.getType()) {
 
@@ -282,13 +284,17 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
         }
     }
 
-    private static Properties jsonToProperties(JSONObject json) throws Exception {
-        Properties properties = new Properties();
-        JSONArray key = json.names();
-        for (int i = 0; i < key.length(); ++i) {
-            properties.addAttribute(key.getString(i), json.getString(key.getString(i)));
+    private static Properties jsonToProperties(JSONObject json) {
+        try {
+            Properties properties = new Properties();
+            JSONArray key = json.names();
+            for (int i = 0; i < key.length(); ++i) {
+                properties.addAttribute(key.getString(i), json.getString(key.getString(i)));
+            }
+            return properties;
+        } catch (Exception e) {
+            return null;
         }
-        return properties;
     }
 
 }
