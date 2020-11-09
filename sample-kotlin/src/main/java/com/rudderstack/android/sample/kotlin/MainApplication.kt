@@ -20,7 +20,7 @@ class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
+        // initializing Rudder SDK
         rudderClient = RudderClient.getInstance(
             this,
             WRITE_KEY,
@@ -32,7 +32,7 @@ class MainApplication : Application() {
                 .build()
         )
 
-        // all good. initialize moengage sdk
+        // initializing MoEngage SDK
         val moEngage = MoEngage.Builder(this, "W6HWD4X2AR1VD37L9F0Z4OT0")
             .setLogLevel(Logger.VERBOSE)
             .redirectDataToRegion(MoEngage.DATA_REGION.REGION_DEFAULT)

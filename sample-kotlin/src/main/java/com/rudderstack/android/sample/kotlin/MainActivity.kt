@@ -12,13 +12,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Screen Call
         MainApplication.rudderClient.screen(localClassName)
-
+        // Track Call with Properties
         val property = RudderProperty()
         property.put("key_1", "val_1")
         property.put("key_2", "val_2")
         MainApplication.rudderClient.track("Event with Property", property)
+        // Track Call without Properties
         MainApplication.rudderClient.track("Event without Property")
+        // Identify Call
         MainApplication.rudderClient.identify(
             "sample_user_id",
             RudderTraits()
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
                 .putLastName("Bar")
                 .putName("Foo Bar"), null
         )
+        // Alias Call
         MainApplication.rudderClient.alias("new_sample_user_id")
 
     }

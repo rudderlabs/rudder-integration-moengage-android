@@ -1,5 +1,6 @@
 package com.rudderstack.android.integrations.moengage;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
@@ -9,8 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.moe.pushlibrary.MoEHelper;
-import com.moengage.core.Logger;
-import com.moengage.core.MoEngage;
 import com.moengage.core.MoEngage.DATA_REGION;
 import com.moengage.core.Properties;
 import com.moengage.core.model.AppStatus;
@@ -70,112 +69,66 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
     private static final String REGION_KEY = "region";
 
     private MoengageIntegrationFactory(Object config, final RudderClient client, RudderConfig rudderConfig) {
-        String apiId = "";
-        Map<String, Object> destinationConfig = (Map<String, Object>) config;
-        if (destinationConfig == null) {
-            RudderLogger.logError("Invalid api key. Aborting MoEngage initialization.");
-        } else if (RudderClient.getApplication() == null) {
-            RudderLogger.logError("RudderClient is not initialized correctly. Application is null. Aborting MoEngage initialization.");
-        } else {
-            // get apiId and return if null or blank
-            if (destinationConfig.containsKey(API_ID)) {
-                apiId = (String) destinationConfig.get(API_ID);
-            }
-            if (TextUtils.isEmpty(apiId)) {
-                RudderLogger.logError("Invalid api key. Aborting MoEngage initialization.");
-                return;
-            }
-            // get endpoint
-            String region = null;
-            DATA_REGION dataRegion = null;
-            if (destinationConfig.containsKey(REGION_KEY)) {
-                region = (String) destinationConfig.get(REGION_KEY);
+        // creating MOEHelper Object
+        helper = MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
+        //  handling life cycle methods of an Application
+        client.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(@NonNull Activity activity, Bundle bundle) {
+                RudderLogger.logVerbose(" onActivityCreated() : ");
+                if (helper == null && activity != null) {
+                    helper = MoEHelper.getInstance(activity.getApplicationContext());
+                }
             }
 
-            if (region == null || region.isEmpty()) {
-                region = "US";
+            @SuppressLint("RestrictedApi")
+            @Override
+            public void onActivityStarted(@NonNull Activity activity) {
+                RudderLogger.logVerbose(" onActivityStarted() : ");
+                if (helper != null && activity != null)
+                    helper.onStartInternal(activity);
             }
 
-            region = region.trim();
-
-
-            switch (region) {
-                case "US":
-                    dataRegion = REGION_DEFAULT;
-                    break;
-                case "EU":
-                    dataRegion = REGION_EU;
-                    break;
-                case "IND":
-                    dataRegion = REGION_SERV3;
-                    break;
+            @SuppressLint("RestrictedApi")
+            @Override
+            public void onActivityResumed(@NonNull Activity activity) {
+                RudderLogger.logVerbose(" onActivityResumed() : ");
+                if (helper != null && activity != null)
+                    helper.onResumeInternal(activity);
             }
-            if (dataRegion == null) {
-                RudderLogger.logError("Data Region is blank or incorrect. Aborting MoEngage initialization.");
-                return;
+
+            @Override
+            public void onActivityPaused(@NonNull Activity activity) {
+                //nothing to implement
             }
-            int logLevel = rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ?
-                    Logger.VERBOSE : Logger.ERROR;
 
-            helper = MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
+            @SuppressLint("RestrictedApi")
+            @Override
+            public void onActivityStopped(@NonNull Activity activity) {
+                RudderLogger.logVerbose(" onActivityStopped() : ");
+                if (helper != null && activity != null)
+                    helper.onStopInternal(activity);
+            }
 
-            client.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-                @Override
-                public void onActivityCreated(@NonNull Activity activity, Bundle bundle) {
-                    RudderLogger.logVerbose(" onActivityCreated() : ");
-                    if (helper == null && activity != null) {
-                        helper = MoEHelper.getInstance(activity.getApplicationContext());
-                    }
-                }
+            @Override
+            public void onActivitySaveInstanceState(@NonNull Activity activity, @Nullable Bundle bundle) {
+                RudderLogger.logVerbose(" onActivitySaveInstanceState() : ");
+                if (helper != null)
+                    helper.onSaveInstanceState(bundle);
+            }
 
-                @Override
-                public void onActivityStarted(@NonNull Activity activity) {
-                    RudderLogger.logVerbose(" onActivityStarted() : ");
-                    if (helper != null && activity != null)
-                        helper.onActivityStart(activity);
+            @Override
+            public void onActivityDestroyed(@NonNull Activity activity) {
+                // nothing to implement
+            }
 
-                }
-
-                @Override
-                public void onActivityResumed(@NonNull Activity activity) {
-                    RudderLogger.logVerbose(" onActivityResumed() : ");
-                    if (helper != null && activity != null)
-                        new MoEIntegrationHelper(RudderClient.getApplication(), IntegrationPartner.).onActivityResumed(activity);
-                }
-
-                @Override
-                public void onActivityPaused(@NonNull Activity activity) {
-                    //nothing to implement
-                }
-
-                @Override
-                public void onActivityStopped(@NonNull Activity activity) {
-                    RudderLogger.logVerbose(" onActivityStopped() : ");
-                    if (helper != null && activity != null) integrationHelper.onActivityStop(activity);
-                }
-
-                @Override
-                public void onActivitySaveInstanceState(@NonNull Activity activity, @Nullable Bundle bundle) {
-                    RudderLogger.logVerbose(" onActivitySaveInstanceState() : ");
-                    if (helper != null) integrationHelper.onActivitySavedInstance(activity, outState);
-                }
-
-                @Override
-                public void onActivityDestroyed(@NonNull Activity activity) {
-                    // nothing to implement
-                }
-
-            });
-
-
-        }
-
+        });
     }
 
     private void processRudderEvent(RudderMessage element) {
         if (element.getType() != null) {
             switch (element.getType()) {
-
+                // handling actions performed by a user
                 case MessageType.TRACK:
                     String event = element.getEventName();
                     if (event == null) {
@@ -195,48 +148,43 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                     JSONObject propertiesJson = new JSONObject(eventProperties);
                     helper.trackEvent(element.getEventName(), jsonToProperties(propertiesJson));
                     break;
-
+                // identifying a user in the MoEngage and setting attributes in his profile
                 case MessageType.IDENTIFY:
-
                     String userId = element.getUserId();
                     if (!TextUtils.isEmpty(userId)) {
+                        // logging in the user into MoEngage
                         helper.setUniqueId(userId);
                     }
                     Map<String, Object> traitsMap = element.getTraits();
                     if (traitsMap == null) {
                         return;
                     }
-
+                    // handling standard attributes of a user on MoEngage
                     Date birthday = dateFromString(RudderTraits.getBirthday(traitsMap));
                     if (birthday != null) {
                         helper.setBirthDate(birthday);
                         traitsMap.remove("birthday");
                     }
-
                     String email = RudderTraits.getEmail(traitsMap);
                     if (!TextUtils.isEmpty(email)) {
                         helper.setEmail(email);
                         traitsMap.remove("email");
                     }
-
                     String firstName = RudderTraits.getFirstname(traitsMap);
                     if (!TextUtils.isEmpty(firstName)) {
                         helper.setFirstName(firstName);
                         traitsMap.remove("firstname");
                     }
-
                     String lastName = RudderTraits.getLastname(traitsMap);
                     if (!TextUtils.isEmpty(lastName)) {
                         helper.setLastName(lastName);
                         traitsMap.remove("lastname");
                     }
-
                     String fullName = RudderTraits.getName(traitsMap);
                     if (!TextUtils.isEmpty(fullName)) {
                         helper.setFullName(fullName);
                         traitsMap.remove("name");
                     }
-
                     String gender = RudderTraits.getGender(traitsMap);
                     if (!TextUtils.isEmpty(gender)) {
                         if (MALE_KEYS.contains(gender.toUpperCase())) {
@@ -246,25 +194,22 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                         }
                         traitsMap.remove("gender");
                     }
-
                     String phone = RudderTraits.getPhone(traitsMap);
                     if (!TextUtils.isEmpty(phone)) {
                         helper.setNumber(phone);
                         traitsMap.remove("phone");
                     }
-
                     String address = RudderTraits.getAddress(traitsMap);
                     if (!TextUtils.isEmpty(address)) {
                         helper.setUserAttribute("address", address);
                         traitsMap.remove("address");
                     }
-
                     String age = RudderTraits.getAge(traitsMap);
                     if (!TextUtils.isEmpty(age)) {
                         helper.setUserAttribute("age", age);
                         traitsMap.remove("age");
                     }
-
+                    // handling custom attributes of a user on MoEngage
                     for (String key : traitsMap.keySet()) {
                         if (RESERVED_KEY_SET.contains(key)) {
                             continue;
@@ -291,12 +236,12 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                         }
                     }
                     break;
+                // handling ALIAS for merging two different profiles of same user
                 case MessageType.ALIAS:
                     String newUserId = element.getUserId();
                     if (!TextUtils.isEmpty(newUserId)) {
                         helper.setAlias(newUserId);
                     }
-
                 default:
                     RudderLogger.logWarn("MoEngageIntegrationFactory: MessageType is not specified");
                     break;
@@ -306,6 +251,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
 
     @Override
     public void reset() {
+        // logging out user
         helper.logoutUser();
     }
 
@@ -325,6 +271,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
         }
     }
 
+    // converting Date from String to Date type
     private static Date dateFromString(String date) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         try {
@@ -334,6 +281,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
         }
     }
 
+    // converting JSON Object to Properties Object
     private static Properties jsonToProperties(JSONObject json) {
         try {
             Properties properties = new Properties();
@@ -346,5 +294,4 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
             return null;
         }
     }
-
 }
