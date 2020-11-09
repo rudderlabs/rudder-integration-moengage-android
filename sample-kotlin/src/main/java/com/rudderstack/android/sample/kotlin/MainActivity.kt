@@ -27,5 +27,7 @@ class MainActivity : AppCompatActivity() {
                 .putLastName("Bar")
                 .putName("Foo Bar"), null
         )
+        MainApplication.rudderClient.alias("new_sample_user_id")
+
     }
 }

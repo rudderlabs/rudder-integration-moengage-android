@@ -1,7 +1,11 @@
 package com.rudderstack.android.integrations.moengage;
 
+import android.app.Activity;
+import android.app.Application;
+import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.moe.pushlibrary.MoEHelper;
@@ -113,15 +117,55 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
             int logLevel = rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ?
                     Logger.VERBOSE : Logger.ERROR;
 
-            // all good. initialize moengage sdk
-            MoEngage moEngage = new MoEngage.Builder(RudderClient.getApplication(), apiId)
-                    .setLogLevel(logLevel)
-                    .redirectDataToRegion(dataRegion)
-                    .setNotificationLargeIcon(R.drawable.ic_launcher_background)
-                    .setNotificationSmallIcon(R.drawable.ic_launcher_background)
-                    .build();
-            MoEngage.initialise(moEngage);
             helper = MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
+
+            client.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+                @Override
+                public void onActivityCreated(@NonNull Activity activity, Bundle bundle) {
+                    RudderLogger.logVerbose(" onActivityCreated() : ");
+                    if (helper == null && activity != null) {
+                        helper = MoEHelper.getInstance(activity.getApplicationContext());
+                    }
+                }
+
+                @Override
+                public void onActivityStarted(@NonNull Activity activity) {
+                    RudderLogger.logVerbose(" onActivityStarted() : ");
+                    if (helper != null && activity != null)
+                        helper.onActivityStart(activity);
+
+                }
+
+                @Override
+                public void onActivityResumed(@NonNull Activity activity) {
+                    RudderLogger.logVerbose(" onActivityResumed() : ");
+                    if (helper != null && activity != null)
+                        new MoEIntegrationHelper(RudderClient.getApplication(), IntegrationPartner.).onActivityResumed(activity);
+                }
+
+                @Override
+                public void onActivityPaused(@NonNull Activity activity) {
+                    //nothing to implement
+                }
+
+                @Override
+                public void onActivityStopped(@NonNull Activity activity) {
+                    RudderLogger.logVerbose(" onActivityStopped() : ");
+                    if (helper != null && activity != null) integrationHelper.onActivityStop(activity);
+                }
+
+                @Override
+                public void onActivitySaveInstanceState(@NonNull Activity activity, @Nullable Bundle bundle) {
+                    RudderLogger.logVerbose(" onActivitySaveInstanceState() : ");
+                    if (helper != null) integrationHelper.onActivitySavedInstance(activity, outState);
+                }
+
+                @Override
+                public void onActivityDestroyed(@NonNull Activity activity) {
+                    // nothing to implement
+                }
+
+            });
 
 
         }
@@ -247,6 +291,12 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                         }
                     }
                     break;
+                case MessageType.ALIAS:
+                    String newUserId = element.getUserId();
+                    if (!TextUtils.isEmpty(newUserId)) {
+                        helper.setAlias(newUserId);
+                    }
+
                 default:
                     RudderLogger.logWarn("MoEngageIntegrationFactory: MessageType is not specified");
                     break;
