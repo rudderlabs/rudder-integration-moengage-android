@@ -41,7 +41,7 @@ dependencies {
 
     // rudder core sdk
     compileOnly 'com.rudderstack.android.sdk:core:1.+'
-    compileOnly 'com.moengage:moe-android-sdk:10.5.00'
+    api 'com.moengage:moe-android-sdk:10.5.00'
 }
 
 apply from: './maven.gradle'
