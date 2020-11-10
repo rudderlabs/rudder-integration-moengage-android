@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.moe.pushlibrary.MoEHelper;
-import com.moengage.core.MoEngage.DATA_REGION;
 import com.moengage.core.Properties;
 import com.moengage.core.model.AppStatus;
 import com.moengage.core.model.UserGender;
@@ -25,18 +24,14 @@ import com.rudderstack.android.sdk.core.RudderTraits;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import static com.moengage.core.MoEngage.DATA_REGION.REGION_DEFAULT;
-import static com.moengage.core.MoEngage.DATA_REGION.REGION_EU;
-import static com.moengage.core.MoEngage.DATA_REGION.REGION_SERV3;
 
 public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
 
@@ -46,7 +41,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
     public static Factory FACTORY = new Factory() {
         @Override
         public RudderIntegration<?> create(Object settings, RudderClient client, RudderConfig rudderConfig) {
-            return new MoengageIntegrationFactory(settings, client, rudderConfig);
+            return new MoengageIntegrationFactory();
         }
 
         @Override
@@ -65,14 +60,12 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
             "USER_ATTRIBUTE_NOTIFICATION_PREF", "USER_ATTRIBUTE_OLD_ID", "MOE_TIME_FORMAT", "MOE_TIME_TIMEZONE",
             "USER_ATTRIBUTE_DND_START_TIME", "USER_ATTRIBUTE_DND_END_TIME", "MOE_GAID", "MOE_ISLAT", "status");
 
-    private static final String API_ID = "apiId";
-    private static final String REGION_KEY = "region";
-
-    private MoengageIntegrationFactory(Object config, final RudderClient client, RudderConfig rudderConfig) {
+    private MoengageIntegrationFactory() {
         // creating MOEHelper Object
-        helper = MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
+        this.helper = MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
+
         //  handling life cycle methods of an Application
-        client.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+        RudderClient.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, Bundle bundle) {
                 RudderLogger.logVerbose(" onActivityCreated() : ");

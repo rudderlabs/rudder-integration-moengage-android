@@ -1,9 +1,9 @@
 # What is Rudder?
 
-**Short answer:** 
+**Short answer:**
 Rudder is an open-source Segment alternative written in Go, built for the enterprise.
 
-**Long answer:** 
+**Long answer:**
 Rudder is a platform for collecting, storing and routing customer event data to dozens of tools. Rudder is open-source, can run in your cloud environment (AWS, GCP, Azure or even your data-centre) and provides a powerful transformation framework to process your event data on the fly.
 
 Released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
@@ -21,7 +21,7 @@ repositories {
 ```
 // Rudder core sdk and bugsnag extension
 implementation 'com.rudderstack.android.sdk:core:1.0.1'
-implementation 'com.rudderstack.android.integration:bugsnag:0.1.0-beta.1'
+implementation 'com.rudderstack.android.integration:bugsnag:1.0.0-pre.1'
 
 // bugsnag core sdk
 implementation 'com.bugsnag:bugsnag-android:4.22.3'

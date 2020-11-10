@@ -1,5 +1,4 @@
 buildscript {
-    ext.kotlin_version = '1.3.41'
     repositories {
         google()
         jcenter()
@@ -9,22 +8,17 @@ buildscript {
     }
 }
 
-plugins {
-    id 'com.google.gms.google-services'
-}
-
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-
+apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId 'com.rudderstack.sample.moengage.android'
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName '1.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -43,24 +37,19 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
-    implementation 'androidx.core:core:1.3.1'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.10'
+    implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.lifecycle:lifecycle-process:2.2.0'
-
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     implementation 'com.rudderstack.android.sdk:core:1.+'
     implementation project(':moengage')
-
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.google.firebase:firebase-messaging:20.2.4'
+    implementation 'com.google.firebase:firebase-messaging:21.0.0'
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
 
