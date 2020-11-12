@@ -8,8 +8,8 @@ Rudder is a platform for collecting, storing and routing customer event data to 
 
 Released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-## Getting Started with Bugsnag Integration of Android SDK
-1. Add [Bugsnag](https://www.bugsnag.com) as a destination in the [Dashboard](https://app.rudderstack.com/) and define `apiKey`.
+## Getting Started with MoEngage Integration of Android SDK
+1. Add [MoEngage](https://www.moengage.com) as a destination in the [Dashboard](https://app.rudderstack.com/) and define `apiKey`.
 
 2. Add these lines to your ```app/build.gradle```
 ```
@@ -19,12 +19,12 @@ repositories {
 ```
 3. Add the dependency under ```dependencies```
 ```
-// Rudder core sdk and bugsnag extension
-implementation 'com.rudderstack.android.sdk:core:1.0.1'
-implementation 'com.rudderstack.android.integration:bugsnag:1.0.0-pre.1'
+// Rudder core sdk and moengage extension
+implementation 'com.rudderstack.android.sdk:core:1.+'
+implementation 'com.rudderstack.android.integration:moengage:1.0.0-pre.1'
 
-// bugsnag core sdk
-implementation 'com.bugsnag:bugsnag-android:4.22.3'
+// moengage core sdk
+api 'com.moengage:moe-android-sdk:10.5.00'
 
 // gson
 implementation 'com.google.code.gson:gson:2.8.6'
@@ -37,7 +37,7 @@ val rudderClient: RudderClient = RudderClient.getInstance(
     <WRITE_KEY>,
     RudderConfig.Builder()
         .withDataPlaneUrl(<DATA_PLANE_URL>)
-        .withFactory(BugSnagIntegrationFactory.FACTORY)
+        .withFactory(MoengageIntegrationFactory.FACTORY)
         .build()
 )
 ```
