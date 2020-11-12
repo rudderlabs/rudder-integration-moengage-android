@@ -143,6 +143,8 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                     break;
                 // identifying a user in the MoEngage and setting attributes in his profile
                 case MessageType.IDENTIFY:
+                    // logging out the previous user if any existing
+                    reset();
                     String userId = element.getUserId();
                     if (!TextUtils.isEmpty(userId)) {
                         // logging in the user into MoEngage
@@ -278,9 +280,13 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
     private static Properties jsonToProperties(JSONObject json) {
         try {
             Properties properties = new Properties();
-            JSONArray key = json.names();
-            for (int i = 0; i < key.length(); ++i) {
-                properties.addAttribute(key.getString(i), json.getString(key.getString(i)));
+            JSONArray keys = json.names();
+            for (int i = 0; i < keys.length(); ++i) {
+                String key = keys.getString(i);
+                Object value = json.get(key);
+                if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+                    properties.addAttribute(key, json.get(key));
+                }
             }
             return properties;
         } catch (Exception e) {

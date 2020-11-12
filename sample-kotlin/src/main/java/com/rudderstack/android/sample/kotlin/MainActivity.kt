@@ -17,7 +17,8 @@ class MainActivity : AppCompatActivity() {
         // Track Call with Properties
         val property = RudderProperty()
         property.put("key_1", "val_1")
-        property.put("key_2", "val_2")
+        property.put("duration", 28)
+        property.put("allowed",true)
         MainApplication.rudderClient.track("Event with Property", property)
         // Track Call without Properties
         MainApplication.rudderClient.track("Event without Property")
