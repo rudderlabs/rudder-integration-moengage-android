@@ -284,7 +284,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
             for (int i = 0; i < keys.length(); ++i) {
                 String key = keys.getString(i);
                 Object value = json.get(key);
-                if (value instanceof String || value instanceof Integer || value instanceof Boolean) {
+                if (value instanceof String || value instanceof Number || value instanceof Boolean) {
                     properties.addAttribute(key, json.get(key));
                 }
             }
