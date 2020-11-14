@@ -21,7 +21,7 @@ repositories {
 ```
 // Rudder core sdk and moengage extension
 implementation 'com.rudderstack.android.sdk:core:1.+'
-implementation 'com.rudderstack.android.integration:moengage:1.0.0-pre.1'
+implementation 'com.rudderstack.android.integration:moengage:1.0.0'
 
 // moengage core sdk
 api 'com.moengage:moe-android-sdk:10.5.00'
