@@ -1,16 +1,10 @@
 package com.rudderstack.android.integrations.moengage;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.moe.pushlibrary.MoEHelper;
 import com.moengage.core.MoECoreHelper;
 import com.moengage.core.analytics.MoEAnalyticsHelper;
 import com.moengage.core.Properties;
@@ -39,8 +33,8 @@ import java.util.Set;
 public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHelper> {
 
     private static final String MOENGAGE_KEY = "MoEngage";
-    private MoEAnalyticsHelper helper;
-    private Context context;
+    private final MoEAnalyticsHelper helper;
+    private final Context context;
 
     public static Factory FACTORY = new Factory() {
         @Override
@@ -65,60 +59,8 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
             "USER_ATTRIBUTE_DND_START_TIME", "USER_ATTRIBUTE_DND_END_TIME", "MOE_GAID", "MOE_ISLAT", "status");
 
     private MoengageIntegrationFactory() {
-        // creating MOEHelper Object
-        this.helper = MoEAnalyticsHelper.INSTANCE;// MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
-        context = RudderClient.getApplication();
-        //  handling life cycle methods of an Application
-//        RudderClient.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-//            @Override
-//            public void onActivityCreated(@NonNull Activity activity, Bundle bundle) {
-//                RudderLogger.logVerbose(" onActivityCreated() : ");
-//                if (helper == null && activity != null) {
-//                    helper = MoEHelper.getInstance(activity.getApplicationContext());
-//                }
-//            }
-//            @SuppressLint("RestrictedApi")
-//            @Override
-//            public void onActivityStarted(@NonNull Activity activity) {
-//                RudderLogger.logVerbose(" onActivityStarted() : ");
-//                if (helper != null && activity != null)
-//                    helper.onStartInternal(activity);
-//            }
-//
-//            @SuppressLint("RestrictedApi")
-//            @Override
-//            public void onActivityResumed(@NonNull Activity activity) {
-//                RudderLogger.logVerbose(" onActivityResumed() : ");
-//                if (helper != null && activity != null)
-//                    helper.onResumeInternal(activity);
-//            }
-//
-//            @Override
-//            public void onActivityPaused(@NonNull Activity activity) {
-//                //nothing to implement
-//            }
-//
-//            @SuppressLint("RestrictedApi")
-//            @Override
-//            public void onActivityStopped(@NonNull Activity activity) {
-//                RudderLogger.logVerbose(" onActivityStopped() : ");
-//                if (helper != null && activity != null)
-//                    helper.onStopInternal(activity);
-//            }
-//
-//            @Override
-//            public void onActivitySaveInstanceState(@NonNull Activity activity, @Nullable Bundle bundle) {
-//                RudderLogger.logVerbose(" onActivitySaveInstanceState() : ");
-//                if (helper != null)
-//                    helper.onSaveInstanceState(bundle);
-//            }
-//
-//            @Override
-//            public void onActivityDestroyed(@NonNull Activity activity) {
-//                // nothing to implement
-//            }
-//
-//        });
+        this.helper = MoEAnalyticsHelper.INSTANCE;
+        this.context = RudderClient.getApplication();
     }
 
     private void processRudderEvent(RudderMessage element) {
@@ -214,20 +156,20 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
                         }
                         Object value = traitsMap.get(key);
                         if (value instanceof Boolean) {
-                            helper.setUserAttribute(context, key, (Boolean) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Integer) {
-                            helper.setUserAttribute(context, key, (Integer) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Double) {
-                            helper.setUserAttribute(context, key, (Double) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Float) {
-                            helper.setUserAttribute(context, key, (Float) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Long) {
-                            helper.setUserAttribute(context, key, (Long) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Date) {
                             long secondsFromEpoch = ((Date) value).getTime() / 1000L;
                             helper.setUserAttribute(context, key, secondsFromEpoch);
                         } else if (value instanceof String) {
-                            helper.setUserAttribute(context, key, (String) value);
+                            helper.setUserAttribute(context, key, value);
                         } else {
                             RudderLogger.logDebug("MoEngage can't map rudder value for custom MoEngage user "
                                     + "attribute with key " + key + "and value " + value);
