@@ -3,6 +3,7 @@ package com.rudderstack.android.integrations.moengage;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.moengage.core.MoECoreHelper;
@@ -227,6 +228,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
     }
 
     // converting JSON Object to Properties Object
+    @NonNull
     private static Properties jsonToProperties(JSONObject json) {
         try {
             Properties properties = new Properties();
@@ -240,7 +242,8 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
             }
             return properties;
         } catch (Exception e) {
-            return null;
+            RudderLogger.logWarn("Error occurred while converting json to Properties object: "  + e);
+            return new Properties();
         }
     }
 }
