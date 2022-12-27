@@ -193,7 +193,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
     @Override
     public void reset() {
         // logging out user
-        if (RudderClient.getApplication() != null) {
+        if (context != null) {
             MoECoreHelper.INSTANCE.logoutUser(context);
             RudderLogger.logDebug("RESET is called");
         } else {
