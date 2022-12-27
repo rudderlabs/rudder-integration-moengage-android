@@ -76,8 +76,10 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
                         return;
                     } else if (event.equals("Application Installed")) {
                         helper.setAppStatus(context, AppStatus.INSTALL);
+                        return;
                     } else if (event.equals("Application Updated")) {
                         helper.setAppStatus(context, AppStatus.UPDATE);
+                        return;
                     }
 
                     Map<String, Object> eventProperties = element.getProperties();
