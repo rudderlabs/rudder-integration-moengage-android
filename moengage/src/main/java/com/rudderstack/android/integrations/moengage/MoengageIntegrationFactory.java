@@ -191,9 +191,9 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
         // logging out user
         if (RudderClient.getApplication() != null) {
             MoECoreHelper.INSTANCE.logoutUser(context);
-            RudderLogger.logDebug("RESET is called");
+            RudderLogger.logDebug("Moengage RESET API is called.");
         } else {
-            RudderLogger.logWarn("RESET is not called since context is not set.");
+            RudderLogger.logWarn("Moengage RESET API is not called since context is not set.");
         }
     }
 
