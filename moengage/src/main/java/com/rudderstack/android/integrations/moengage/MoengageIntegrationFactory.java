@@ -58,6 +58,8 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
             "USER_ATTRIBUTE_USER_BDAY", "MOE_TIME_FORMAT", "MOE_TIME_TIMEZONE",
             "USER_ATTRIBUTE_NOTIFICATION_PREF", "USER_ATTRIBUTE_OLD_ID", "MOE_TIME_FORMAT", "MOE_TIME_TIMEZONE",
             "USER_ATTRIBUTE_DND_START_TIME", "USER_ATTRIBUTE_DND_END_TIME", "MOE_GAID", "MOE_ISLAT", "status");
+    private static final List<String> IDENTIFY_TRAITS = Arrays.asList("birthday", "email", "firstname",
+            "lastname", "name", "gender", "phone", "address", "age");
 
     private MoengageIntegrationFactory() {
         this.helper = MoEAnalyticsHelper.INSTANCE;
@@ -74,8 +76,10 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
                         return;
                     } else if (event.equals("Application Installed")) {
                         helper.setAppStatus(context, AppStatus.INSTALL);
+                        return;
                     } else if (event.equals("Application Updated")) {
                         helper.setAppStatus(context, AppStatus.UPDATE);
+                        return;
                     }
 
                     Map<String, Object> eventProperties = element.getProperties();
@@ -104,27 +108,22 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
                     Date birthday = dateFromString(RudderTraits.getBirthday(traitsMap));
                     if (birthday != null) {
                         helper.setBirthDate(context, birthday);
-                        traitsMap.remove("birthday");
                     }
                     String email = RudderTraits.getEmail(traitsMap);
                     if (!TextUtils.isEmpty(email)) {
                         helper.setEmailId(context, email);
-                        traitsMap.remove("email");
                     }
                     String firstName = RudderTraits.getFirstname(traitsMap);
                     if (!TextUtils.isEmpty(firstName)) {
                         helper.setFirstName(context, firstName);
-                        traitsMap.remove("firstname");
                     }
                     String lastName = RudderTraits.getLastname(traitsMap);
                     if (!TextUtils.isEmpty(lastName)) {
                         helper.setLastName(context, lastName);
-                        traitsMap.remove("lastname");
                     }
                     String fullName = RudderTraits.getName(traitsMap);
                     if (!TextUtils.isEmpty(fullName)) {
                         helper.setUserName(context, fullName);
-                        traitsMap.remove("name");
                     }
                     String gender = RudderTraits.getGender(traitsMap);
                     if (!TextUtils.isEmpty(gender)) {
@@ -133,26 +132,23 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
                         } else if (FEMALE_KEYS.contains(gender.toUpperCase())) {
                             helper.setGender(context, UserGender.FEMALE);
                         }
-                        traitsMap.remove("gender");
                     }
                     String phone = RudderTraits.getPhone(traitsMap);
                     if (!TextUtils.isEmpty(phone)) {
                         helper.setMobileNumber(context, phone);
-                        traitsMap.remove("phone");
                     }
                     String address = RudderTraits.getAddress(traitsMap);
                     if (!TextUtils.isEmpty(address)) {
                         helper.setUserAttribute(context, "address", address);
-                        traitsMap.remove("address");
                     }
                     String age = RudderTraits.getAge(traitsMap);
                     if (!TextUtils.isEmpty(age)) {
                         helper.setUserAttribute(context, "age", age);
-                        traitsMap.remove("age");
                     }
                     // handling custom attributes of a user on MoEngage
                     for (String key : traitsMap.keySet()) {
-                        if (RESERVED_KEY_SET.contains(key)) {
+                        if (RESERVED_KEY_SET.contains(key) ||
+                                IDENTIFY_TRAITS.contains(key)) {
                             continue;
                         }
                         Object value = traitsMap.get(key);
@@ -195,9 +191,9 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
         // logging out user
         if (context != null) {
             MoECoreHelper.INSTANCE.logoutUser(context);
-            RudderLogger.logDebug("RESET is called");
+            RudderLogger.logDebug("Moengage RESET API is called.");
         } else {
-            RudderLogger.logWarn("RESET is not called since context is not set.");
+            RudderLogger.logWarn("Moengage RESET API is not called since context is not set.");
         }
     }
 
