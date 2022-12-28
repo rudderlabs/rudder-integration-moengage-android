@@ -23,7 +23,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.5.0'
 
     // rudder core sdk
-    implementation 'com.rudderstack.android.sdk:core:[1.0,2.0)'
+    implementation 'com.rudderstack.android.sdk:core:[1.7.0, 1.8.0)'
 
     // MoEngage
     implementation("com.moengage:moe-android-sdk:12.5.04")
