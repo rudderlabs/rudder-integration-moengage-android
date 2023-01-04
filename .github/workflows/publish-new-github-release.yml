@@ -47,7 +47,7 @@ jobs:
         with:
           branches: 'hotfix-release/*'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_GITHUB_TOKEN }}
 
       - name: Delete release branch
         uses: koj-co/delete-merged-action@master
@@ -55,4 +55,4 @@ jobs:
         with:
           branches: 'release/*'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_GITHUB_TOKEN }}
