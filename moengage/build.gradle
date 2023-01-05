@@ -7,8 +7,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
-        versionCode 1
-        versionName '1.0.0'
+        buildConfigField("String", "VERSION_NAME", "\"${VERSION_NAME}\"")
     }
 
     buildTypes {
@@ -16,6 +15,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -28,4 +31,6 @@ dependencies {
     api 'com.moengage:moe-android-sdk:10.5.00'
 }
 
-apply from: './maven.gradle'
+apply from: rootProject.file('gradle/mvn-publish.gradle')
+apply from: rootProject.file('gradle/codecov.gradle')
+

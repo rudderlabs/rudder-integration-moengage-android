@@ -1,4 +1,4 @@
-**/.DS_Store
+*.DS_Store
 *.iml
 **/build/
 .gradle/
@@ -8,3 +8,4 @@ local.properties
 .project
 **/.settings
 **/.classpath
+node_modules/*
