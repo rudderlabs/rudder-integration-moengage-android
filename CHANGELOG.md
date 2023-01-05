@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### ⚠ BREAKING CHANGES
 
-* update MoEngage SDK to the latest version 12.5.04 (#12)
+* update MoEngage SDK to the latest version 12.5.04 ([#12](https://github.com/rudderlabs/rudder-integration-moengage-android/issues/12))
 
 ### Features
 
