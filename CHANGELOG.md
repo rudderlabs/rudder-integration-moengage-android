@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.0.1 (2023-01-05)
+
+
+### Bug Fixes
+
+* fix github actions for ci issue to genarate proper version\n\nBREAKING CHANGE: \n\n Bumped MoEngage SDK to latest version ([e375db3](https://github.com/rudderlabs/rudder-integration-moengage-android/commit/e375db3198fafe7f366423c0704c12a041f4579b))
+
 ## 2.0.0 (2023-01-05)
 
 
