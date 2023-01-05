@@ -15,10 +15,14 @@ jobs:
       - name: Extract version from branch name (for release branches)
         id: extract-version
         run: |
-          BRANCH_NAME="${{ github.event.pull_request.head.ref }}" || ${GITHUB_REF##*/}
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          echo "github ref: ${GITHUB_REF##*/}"
+          if [ "$BRANCH_NAME" = "" ]; then BRANCH_NAME=${GITHUB_REF##*/}
+          fi
+          echo "BRANCH_NAME considered: ${BRANCH_NAME}"
           VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
-          
+          echo "using version ${VERSION}"
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
       - name: Checkout
         uses: actions/checkout@v3
@@ -33,10 +37,10 @@ jobs:
       - name: Create Github Release
         id: create_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AUTH_GITHUB_TOKEN }}
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.PAT }}
         run: |
-          npx conventional-github-releaser -p angular
+          DEBUG=conventional-github-releaser npx conventional-github-releaser -p angular
 
       - name: Delete hotfix release branch
         uses: koj-co/delete-merged-action@master
