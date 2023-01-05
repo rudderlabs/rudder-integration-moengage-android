@@ -1,15 +1,13 @@
 package com.rudderstack.android.integrations.moengage;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
-import android.os.Bundle;
+import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.moe.pushlibrary.MoEHelper;
+import com.moengage.core.MoECoreHelper;
+import com.moengage.core.analytics.MoEAnalyticsHelper;
 import com.moengage.core.Properties;
 import com.moengage.core.model.AppStatus;
 import com.moengage.core.model.UserGender;
@@ -33,10 +31,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
+public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHelper> {
 
     private static final String MOENGAGE_KEY = "MoEngage";
-    private MoEHelper helper;
+    private final MoEAnalyticsHelper helper;
+    private final Context context;
 
     public static Factory FACTORY = new Factory() {
         @Override
@@ -59,63 +58,12 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
             "USER_ATTRIBUTE_USER_BDAY", "MOE_TIME_FORMAT", "MOE_TIME_TIMEZONE",
             "USER_ATTRIBUTE_NOTIFICATION_PREF", "USER_ATTRIBUTE_OLD_ID", "MOE_TIME_FORMAT", "MOE_TIME_TIMEZONE",
             "USER_ATTRIBUTE_DND_START_TIME", "USER_ATTRIBUTE_DND_END_TIME", "MOE_GAID", "MOE_ISLAT", "status");
+    private static final List<String> IDENTIFY_TRAITS = Arrays.asList("birthday", "email", "firstname",
+            "lastname", "name", "gender", "phone", "address", "age");
 
     private MoengageIntegrationFactory() {
-        // creating MOEHelper Object
-        this.helper = MoEHelper.getInstance(RudderClient.getApplication().getApplicationContext());
-
-        //  handling life cycle methods of an Application
-        RudderClient.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, Bundle bundle) {
-                RudderLogger.logVerbose(" onActivityCreated() : ");
-                if (helper == null && activity != null) {
-                    helper = MoEHelper.getInstance(activity.getApplicationContext());
-                }
-            }
-
-            @SuppressLint("RestrictedApi")
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {
-                RudderLogger.logVerbose(" onActivityStarted() : ");
-                if (helper != null && activity != null)
-                    helper.onStartInternal(activity);
-            }
-
-            @SuppressLint("RestrictedApi")
-            @Override
-            public void onActivityResumed(@NonNull Activity activity) {
-                RudderLogger.logVerbose(" onActivityResumed() : ");
-                if (helper != null && activity != null)
-                    helper.onResumeInternal(activity);
-            }
-
-            @Override
-            public void onActivityPaused(@NonNull Activity activity) {
-                //nothing to implement
-            }
-
-            @SuppressLint("RestrictedApi")
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {
-                RudderLogger.logVerbose(" onActivityStopped() : ");
-                if (helper != null && activity != null)
-                    helper.onStopInternal(activity);
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity, @Nullable Bundle bundle) {
-                RudderLogger.logVerbose(" onActivitySaveInstanceState() : ");
-                if (helper != null)
-                    helper.onSaveInstanceState(bundle);
-            }
-
-            @Override
-            public void onActivityDestroyed(@NonNull Activity activity) {
-                // nothing to implement
-            }
-
-        });
+        this.helper = MoEAnalyticsHelper.INSTANCE;
+        this.context = RudderClient.getApplication();
     }
 
     private void processRudderEvent(RudderMessage element) {
@@ -127,19 +75,21 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                     if (event == null) {
                         return;
                     } else if (event.equals("Application Installed")) {
-                        helper.setAppStatus(AppStatus.INSTALL);
+                        helper.setAppStatus(context, AppStatus.INSTALL);
+                        return;
                     } else if (event.equals("Application Updated")) {
-                        helper.setAppStatus(AppStatus.UPDATE);
+                        helper.setAppStatus(context, AppStatus.UPDATE);
+                        return;
                     }
 
                     Map<String, Object> eventProperties = element.getProperties();
                     if (eventProperties == null || eventProperties.size() == 0) {
                         RudderLogger.logDebug("MoEngage event has no properties");
-                        helper.trackEvent(element.getEventName(), new Properties());
+                        helper.trackEvent(context, element.getEventName(), new Properties());
                         return;
                     }
                     JSONObject propertiesJson = new JSONObject(eventProperties);
-                    helper.trackEvent(element.getEventName(), jsonToProperties(propertiesJson));
+                    helper.trackEvent(context, element.getEventName(), jsonToProperties(propertiesJson));
                     break;
                 // identifying a user in the MoEngage and setting attributes in his profile
                 case MessageType.IDENTIFY:
@@ -148,7 +98,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                     String userId = element.getUserId();
                     if (!TextUtils.isEmpty(userId)) {
                         // logging in the user into MoEngage
-                        helper.setUniqueId(userId);
+                        helper.setUniqueId(context, userId);
                     }
                     Map<String, Object> traitsMap = element.getTraits();
                     if (traitsMap == null) {
@@ -157,74 +107,66 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                     // handling standard attributes of a user on MoEngage
                     Date birthday = dateFromString(RudderTraits.getBirthday(traitsMap));
                     if (birthday != null) {
-                        helper.setBirthDate(birthday);
-                        traitsMap.remove("birthday");
+                        helper.setBirthDate(context, birthday);
                     }
                     String email = RudderTraits.getEmail(traitsMap);
                     if (!TextUtils.isEmpty(email)) {
-                        helper.setEmail(email);
-                        traitsMap.remove("email");
+                        helper.setEmailId(context, email);
                     }
                     String firstName = RudderTraits.getFirstname(traitsMap);
                     if (!TextUtils.isEmpty(firstName)) {
-                        helper.setFirstName(firstName);
-                        traitsMap.remove("firstname");
+                        helper.setFirstName(context, firstName);
                     }
                     String lastName = RudderTraits.getLastname(traitsMap);
                     if (!TextUtils.isEmpty(lastName)) {
-                        helper.setLastName(lastName);
-                        traitsMap.remove("lastname");
+                        helper.setLastName(context, lastName);
                     }
                     String fullName = RudderTraits.getName(traitsMap);
                     if (!TextUtils.isEmpty(fullName)) {
-                        helper.setFullName(fullName);
-                        traitsMap.remove("name");
+                        helper.setUserName(context, fullName);
                     }
                     String gender = RudderTraits.getGender(traitsMap);
                     if (!TextUtils.isEmpty(gender)) {
                         if (MALE_KEYS.contains(gender.toUpperCase())) {
-                            helper.setGender(UserGender.MALE);
+                            helper.setGender(context, UserGender.MALE);
                         } else if (FEMALE_KEYS.contains(gender.toUpperCase())) {
-                            helper.setGender(UserGender.FEMALE);
+                            helper.setGender(context, UserGender.FEMALE);
                         }
-                        traitsMap.remove("gender");
                     }
                     String phone = RudderTraits.getPhone(traitsMap);
                     if (!TextUtils.isEmpty(phone)) {
-                        helper.setNumber(phone);
-                        traitsMap.remove("phone");
+                        helper.setMobileNumber(context, phone);
                     }
                     String address = RudderTraits.getAddress(traitsMap);
                     if (!TextUtils.isEmpty(address)) {
-                        helper.setUserAttribute("address", address);
-                        traitsMap.remove("address");
+                        helper.setUserAttribute(context, "address", address);
                     }
                     String age = RudderTraits.getAge(traitsMap);
                     if (!TextUtils.isEmpty(age)) {
-                        helper.setUserAttribute("age", age);
-                        traitsMap.remove("age");
+                        helper.setUserAttribute(context, "age", age);
                     }
                     // handling custom attributes of a user on MoEngage
                     for (String key : traitsMap.keySet()) {
-                        if (RESERVED_KEY_SET.contains(key)) {
+                        if (RESERVED_KEY_SET.contains(key) ||
+                                IDENTIFY_TRAITS.contains(key)) {
                             continue;
                         }
                         Object value = traitsMap.get(key);
                         if (value instanceof Boolean) {
-                            helper.setUserAttribute(key, (Boolean) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Integer) {
-                            helper.setUserAttribute(key, (Integer) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Double) {
-                            helper.setUserAttribute(key, (Double) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Float) {
-                            helper.setUserAttribute(key, (Float) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Long) {
-                            helper.setUserAttribute(key, (Long) value);
+                            helper.setUserAttribute(context, key, value);
                         } else if (value instanceof Date) {
                             long secondsFromEpoch = ((Date) value).getTime() / 1000L;
-                            helper.setUserAttribute(key, secondsFromEpoch);
+                            helper.setUserAttribute(context, key, secondsFromEpoch);
                         } else if (value instanceof String) {
-                            helper.setUserAttribute(key, (String) value);
+                            helper.setUserAttribute(context, key, value);
                         } else {
                             RudderLogger.logDebug("MoEngage can't map rudder value for custom MoEngage user "
                                     + "attribute with key " + key + "and value " + value);
@@ -235,7 +177,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
                 case MessageType.ALIAS:
                     String newUserId = element.getUserId();
                     if (!TextUtils.isEmpty(newUserId)) {
-                        helper.setAlias(newUserId);
+                        helper.setAlias(context, newUserId);
                     }
                 default:
                     RudderLogger.logWarn("MoEngageIntegrationFactory: MessageType is not specified");
@@ -247,11 +189,16 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
     @Override
     public void reset() {
         // logging out user
-        helper.logoutUser();
+        if (context != null) {
+            MoECoreHelper.INSTANCE.logoutUser(context);
+            RudderLogger.logDebug("Moengage RESET API is called.");
+        } else {
+            RudderLogger.logWarn("Moengage RESET API is not called since context is not set.");
+        }
     }
 
     @Override
-    public MoEHelper getUnderlyingInstance() {
+    public MoEAnalyticsHelper getUnderlyingInstance() {
         return helper;
     }
 
@@ -277,6 +224,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
     }
 
     // converting JSON Object to Properties Object
+    @NonNull
     private static Properties jsonToProperties(JSONObject json) {
         try {
             Properties properties = new Properties();
@@ -290,7 +238,8 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEHelper> {
             }
             return properties;
         } catch (Exception e) {
-            return null;
+            RudderLogger.logWarn("Error occurred while converting json to Properties object: "  + e);
+            return new Properties();
         }
     }
 }
