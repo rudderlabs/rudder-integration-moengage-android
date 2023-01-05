@@ -35,9 +35,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-core-
       - name: Run Tests
-        run: ./gradlew :test
+        run: ./gradlew moengage:test
       - name: Generate coverage report
-        run: ./gradlew :codeCoverageReport
+        run: ./gradlew moengage:codeCoverageReport
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
 
