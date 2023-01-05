@@ -5,11 +5,12 @@ on:
     branches: [ 'master' ]
     types:
       - closed
+  workflow_dispatch:    
 jobs:
   release:
     name: Publish new release
     runs-on: ubuntu-latest
-    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true # only merged pull requests must trigger this job
+    if: ${{ github.event_name == 'workflow_dispatch' }} || ((startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true) # only merged pull requests must trigger this job
     steps:
       - name: Extract version from branch name (for release branches)
         id: extract-version
