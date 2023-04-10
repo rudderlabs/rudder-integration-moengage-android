@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.moengage.core.MoECoreHelper;
+import com.moengage.core.MoEngage;
 import com.moengage.core.analytics.MoEAnalyticsHelper;
 import com.moengage.core.Properties;
 import com.moengage.core.model.AppStatus;
@@ -40,7 +41,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
     public static Factory FACTORY = new Factory() {
         @Override
         public RudderIntegration<?> create(Object settings, RudderClient client, RudderConfig rudderConfig) {
-            return new MoengageIntegrationFactory();
+            return new MoengageIntegrationFactory(client);
         }
 
         @Override
@@ -61,9 +62,9 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
     private static final List<String> IDENTIFY_TRAITS = Arrays.asList("birthday", "email", "firstname",
             "lastname", "name", "gender", "phone", "address", "age");
 
-    private MoengageIntegrationFactory() {
+    private MoengageIntegrationFactory(@NonNull RudderClient client) {
         this.helper = MoEAnalyticsHelper.INSTANCE;
-        this.context = RudderClient.getApplication();
+        this.context = client.getApplication();
     }
 
     private void processRudderEvent(RudderMessage element) {
