@@ -1,0 +1,4 @@
+dataplaneUrl="your_dp_url"
+writeKey="your_write_key"
+controlplaneUrl="control_plane_url"
+appId="app_id"

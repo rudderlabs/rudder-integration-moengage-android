@@ -1,6 +1,7 @@
 package com.rudderstack.android.sample.kotlin
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.rudderlabs.android.sample.kotlin.R
 import com.rudderstack.android.sdk.core.RudderProperty
@@ -11,28 +12,37 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
 
-        // Screen Call
-        MainApplication.rudderClient.screen(localClassName)
-        // Track Call with Properties
-        val property = RudderProperty()
-        property.put("key_1", "val_1")
-        property.put("duration", 28)
-        property.put("allowed",true)
-        MainApplication.rudderClient.track("Event with Property", property)
-        // Track Call without Properties
-        MainApplication.rudderClient.track("Event without Property")
-        // Identify Call
-        MainApplication.rudderClient.identify(
-            "sample_user_id",
-            RudderTraits()
-                .putEmail("sample@gmail.com")
-                .putFirstName("Foo")
-                .putLastName("Bar")
-                .putName("Foo Bar"), null
-        )
-        // Alias Call
-        MainApplication.rudderClient.alias("new_sample_user_id")
+    fun onButtonTap(view: View) {
+        when (view.id) {
+            R.id.btn ->
+                MainApplication.rudderClient.identify("test_userid_android")
+            R.id.btn2 ->
+                MainApplication.rudderClient.identify(
+                    "test_userid_android",
+                    RudderTraits()
+                        .putBirthday(Date(631172471000))
+                        .putAddress(RudderTraits.Address()
+                            .putCity("Palo Alto")
+                            .putCountry("USA"))
+                        .putFirstName("First Name")
+                        .putLastName("Last Name")
+                        .putName("Rudder-Bugsnag Android")
+                        .putGender("Male")
+                        .putPhone("0123456789")
+                        .putEmail("test@gmail.com")
+                        .put("key-1", "value-1")
+                        .put("key-2", 1234),
+                    null
+                )
 
+            R.id.btn3 ->
+                MainApplication.rudderClient.track("New Track event", RudderProperty()
+                    .putValue("key_1", "value_1")
+                    .putValue("key_2", "value_2"))
+            R.id.btn4 ->
+                MainApplication.rudderClient.alias("test_userid_android_2")
+        }
     }
 }
