@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/rudderlabs/rudder-integration-moengage-android/compare/v2.1.0...v2.1.1) (2023-07-11)
+
+
+### Bug Fixes
+
+* remove explicit reset call in identify event ([991518b](https://github.com/rudderlabs/rudder-integration-moengage-android/commit/991518b5cd51c4e1b1026bb803e6d9c59db82ba3))
+
 ## 2.1.0 (2023-04-17)
 
 
