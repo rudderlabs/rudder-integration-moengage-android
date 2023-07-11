@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.moengage.core.MoECoreHelper;
-import com.moengage.core.MoEngage;
 import com.moengage.core.analytics.MoEAnalyticsHelper;
 import com.moengage.core.Properties;
 import com.moengage.core.model.AppStatus;
@@ -41,7 +40,7 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
     public static Factory FACTORY = new Factory() {
         @Override
         public RudderIntegration<?> create(Object settings, RudderClient client, RudderConfig rudderConfig) {
-            return new MoengageIntegrationFactory(client);
+            return new MoengageIntegrationFactory();
         }
 
         @Override
@@ -62,9 +61,9 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
     private static final List<String> IDENTIFY_TRAITS = Arrays.asList("birthday", "email", "firstname",
             "lastname", "name", "gender", "phone", "address", "age");
 
-    private MoengageIntegrationFactory(@NonNull RudderClient client) {
+    private MoengageIntegrationFactory() {
         this.helper = MoEAnalyticsHelper.INSTANCE;
-        this.context = client.getApplication();
+        this.context = RudderClient.getApplication();
     }
 
     private void processRudderEvent(RudderMessage element) {
@@ -94,8 +93,6 @@ public class MoengageIntegrationFactory extends RudderIntegration<MoEAnalyticsHe
                     break;
                 // identifying a user in the MoEngage and setting attributes in his profile
                 case MessageType.IDENTIFY:
-                    // logging out the previous user if any existing
-                    reset();
                     String userId = element.getUserId();
                     if (!TextUtils.isEmpty(userId)) {
                         // logging in the user into MoEngage
